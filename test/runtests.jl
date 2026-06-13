@@ -5,22 +5,22 @@ using LinearAlgebra
 @testset "TwoDiskReceptivity.jl" begin
 
     @testset "Base flow computation" begin
-        params = FlowParameters(1000, -1.0, 0.0, 500, 30, 8.0, 31, 1)
+        params = FlowParameters(1000, -1.0, 0.0, 300, 30, 0.0, 129, 1)
         baseflow, grid = solve_baseflow(params)
 
-        @test size(baseflow.F) == (32, 1)
-        @test size(baseflow.G) == (32, 1)
-        @test size(baseflow.H) == (32, 1)
-        @test length(grid.z) == 32
-        @test size(grid.D) == (32, 32)
-        @test size(grid.D2) == (32, 32)
+        @test size(baseflow.F) == (130, 1)
+        @test size(baseflow.G) == (130, 1)
+        @test size(baseflow.H) == (130, 1)
+        @test length(grid.z) == 130
+        @test size(grid.D) == (130, 130)
+        @test size(grid.D2) == (130, 130)
 
         # Boundary values: G(z=0) ≈ 0 after G.-1 adjustment (Bödewadt condition)
         @test abs(baseflow.G[1, 1]) < 0.01
     end
 
     @testset "Coefficient matrix assembly" begin
-        params = FlowParameters(1000, -1.0, 0.0, 500, 30, 8.0, 31, 1)
+        params = FlowParameters(1000, -1.0, 0.0, 300, 30, 0.0, 129, 1)
         baseflow, grid = solve_baseflow(params)
         F, G, H = baseflow.F, baseflow.G, baseflow.H
         D, D2 = grid.D, grid.D2
@@ -33,7 +33,7 @@ using LinearAlgebra
     end
 
     @testset "PEP matrix assembly and boundary conditions" begin
-        params = FlowParameters(1000, -1.0, 0.0, 500, 30, 8.0, 31, 1)
+        params = FlowParameters(1000, -1.0, 0.0, 300, 30, 0.0, 129, 1)
         baseflow, grid = solve_baseflow(params)
         F, G, H = baseflow.F, baseflow.G, baseflow.H
         D, D2 = grid.D, grid.D2
@@ -69,7 +69,7 @@ using LinearAlgebra
         # We verify this by solving both problems independently with IAR
         # and comparing the leading eigenvalues.
 
-        params = FlowParameters(1000, -1.0, 0.0, 500, 30, 8.0, 31, 1)
+        params = FlowParameters(1000, -1.0, 0.0, 300, 30, 0.0, 129, 1)
         baseflow, grid = solve_baseflow(params)
         F, G, H = baseflow.F, baseflow.G, baseflow.H
         D, D2 = grid.D, grid.D2
@@ -106,7 +106,7 @@ using LinearAlgebra
     end
 
     @testset "Eigenvalue problem solution (high-level API)" begin
-        params = FlowParameters(1000, -1.0, 0.0, 500, 30, 8.0, 31, 1)
+        params = FlowParameters(1000, -1.0, 0.0, 300, 30, 0.0, 129, 1)
         baseflow, grid = solve_baseflow(params)
         sigma = 0.4 + 0.0im
 
@@ -122,7 +122,7 @@ using LinearAlgebra
     end
 
     @testset "Receptivity coefficient" begin
-        params = FlowParameters(1000, -1.0, 0.0, 500, 30, 8.0, 31, 1)
+        params = FlowParameters(1000, -1.0, 0.0, 300, 30, 0.0, 129, 1)
         baseflow, grid = solve_baseflow(params)
         sigma = 0.4 + 0.0im
         hr = 1.0 / params.Res
@@ -139,8 +139,8 @@ using LinearAlgebra
     end
 
     @testset "Quadrature weights" begin
-        W = chebyshev_quadrature_weights(31)
-        expected_size = 4*32 - 7
+        W = chebyshev_quadrature_weights(129)
+        expected_size = 4*130 - 7
         @test size(W) == (expected_size, expected_size)
         # Weights should be positive
         @test all(diag(W) .>= 0)
@@ -148,7 +148,7 @@ using LinearAlgebra
 
     @testset "Eigenvector reconstruction" begin
         # Create a dummy reduced eigenvector
-        N_cheb = 31
+        N_cheb = 129
         reduced_size = 4*(N_cheb+1) - 7
         dummy_eigvec = randn(ComplexF64, reduced_size, 2)
 
